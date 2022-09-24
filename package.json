@@ -1,0 +1,25 @@
+{
+  "name": "battleship",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DigitalKnight0/Battleship.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DigitalKnight0/Battleship/issues"
+  },
+  "homepage": "https://github.com/DigitalKnight0/Battleship#readme",
+  "devDependencies": {
+    "jest": "^29.0.3",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
