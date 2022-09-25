@@ -1,4 +1,4 @@
-const battleShip = (cords, alignment) => {
+const battleShip = (cords, length) => {
     const blocks = {}
     let alive = true
 
@@ -37,8 +37,10 @@ const battleShip = (cords, alignment) => {
         isSunk,
         getCords,
         getCordsStatus,
-        alignment
+        length
     }
 }
+
+// module.exports = battleShip
 
 export default battleShip
