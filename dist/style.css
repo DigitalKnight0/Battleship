@@ -1,0 +1,35 @@
+* {
+    border: black solid 1px;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.selection{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    height: 80vh;
+    width: 80vw;
+    background-color: green;
+    display: flex;
+    flex-direction: column;
+}
+
+.grid{
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    width: 60%;
+    aspect-ratio: 1;
+}
+
+.highlighted{
+    background-color: blue;
+}

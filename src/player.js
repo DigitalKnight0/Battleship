@@ -23,7 +23,7 @@ const Bot = (board) => {
 
     const generateAdjacentCells = (cord) => {
         const adjacents = []
-        const row = cord[1]
+        const row = cord.slice(1)
         const column = cord[0]
         adjacents.push(`${column}${Number(row) + 1}`)
         adjacents.push(`${column}${Number(row) - 1}`)
@@ -56,11 +56,11 @@ const Bot = (board) => {
             second = sequence[sequence.length - 1]
         }
         if(first[0] === second[0]){
-            const difference = Number(second[1]) - Number(first[1])
-            return `${second[0]}${Number(second[1]) + difference}`
+            const difference = Number(second.slice(1)) - Number(firstslice(1))
+            return `${second[0]}${Number(second.slice(1)) + difference}`
         } else {
             const difference = second[0].charCodeAt(0) - first[0].charCodeAt(0)
-            return `${String.fromCharCode(second[0].charCodeAt(0) + difference)}${second[1]}`
+            return `${String.fromCharCode(second[0].charCodeAt(0) + difference)}${second.slice(1)}`
         }
     }
 
@@ -130,7 +130,7 @@ const Bot = (board) => {
         const availableBlocks = Object.keys(opponentBoard).filter(cord => {
             return !playedCells.includes(cord)
         })
-        return availableBlocks[Math.floor((Math.random()*availableBlocks.length))];
+        return sample(availableBlocks)
     }
 
     const makeMove = (opponentBoard, opponentShips, isSmart) => {
@@ -147,6 +147,33 @@ const Bot = (board) => {
 
     const debugMakeMove = (cord) => {
         playedCells.push(cord)
+    }
+
+    const sample = (array) => {
+        return array[Math.floor((Math.random()*array.length))]
+    } 
+
+    const placeShips = () => {
+        const ships = [5, 4, 3, 3, 2]
+        const rows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+        const alignments = [[1, 0], [0, 1]]
+        ships.forEach(ship => {
+            
+        })
+    }
+
+    const generateRange = (cord, alignment, length) => {
+        const range = [cord]
+        for(let i = 0; i < length - 1; i++){
+            let lastCord = range[range.length - 1]
+            let row = lastCord.slice(1)
+            let column = lastCord.charCodeAt(0)
+            row = Number(row) + alignment[1]
+            column = String.fromCharCode(column + alignment[0])
+            range.push(`${column}${row}`)
+        }
+        return range.filter(cord => Object.keys(board.getBoard()).includes(cord))
     }
 
 

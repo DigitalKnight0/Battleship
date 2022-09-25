@@ -29,12 +29,13 @@ const gameBoard = () => {
     }
 
     const placeShip = (cords) => {
-        if(!canPlaceShip(cords)) return;
+        if(!canPlaceShip(cords)) return false;
         const ship = battleShip(cords, cords.length)
         cords.forEach(cord => {
             board[cord] = Cells.ship
         })
         ships.push(ship)
+        return true
     }
 
     const availableToAttack = (cord) => {
