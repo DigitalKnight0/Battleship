@@ -185,3 +185,23 @@ describe("Makes correct Moves in Both directions", () => {
     })
 
 })
+
+describe("Places all ships randomly", () => {
+
+    test("places all 5 ships randomly", () => {
+        const myBoard = gameBoard()
+        const bot = Bot(myBoard)
+        bot.placeShips()
+        let ships = bot.board.getShips()
+        expect(ships.length).toBe(5)
+    })
+
+    test("places all 5 ships randomly with proper lengths", () => {
+        const myBoard = gameBoard()
+        const bot = Bot(myBoard)
+        bot.placeShips()
+        let ships = bot.board.getShips()
+        const lengths = ships.map(ship => ship.length)
+        expect(lengths).toEqual([5, 4, 3, 3, 2])
+    })
+})

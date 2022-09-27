@@ -3,9 +3,11 @@ import { Player, Bot } from "./player";
 import View from "./view";
 
 const gameContoller = (() => {
+    const playerGrid = document.querySelector('.userBox')
+    const botGrid = document.querySelector('.botBox')
     const player = Player(gameBoard())
     const bot = Bot(gameBoard())
-    const alignment = 'horizontal'
+    let alignment = 'horizontal'
     let currentShip = "carrier"
     let highlightRemover = 5
     const view = View()
@@ -21,6 +23,7 @@ const gameContoller = (() => {
     Object.freeze(ships)
 
     const startSelections = () => {
+        view.attachListener('click', document.querySelector('.rotate'), switchAlignment)
         const grid = document.querySelector('.grid')
         document.querySelector('.title').textContent = `Place your ${currentShip}`
         view.renderInitialBoard(player.board.getBoard(), grid)
@@ -31,25 +34,51 @@ const gameContoller = (() => {
         })
     }
 
+
+    const attachResetListener = () => {
+        const resetBtn = document.querySelector(".reset")
+        view.attachListener("click", resetBtn, reset)
+    }
+
+    const switchAlignment = () => {
+        alignment = alignment === 'horizontal' ? 'vertical' : 'horizontal'
+    }
+
     const placeShip = (e) => {
         const increments = {
             "horizontal": [1, 0],
-            "veritical": [0, 1]
+            "vertical": [0, 1]
         }
         let currentCell = e.target.dataset.cord
         let range = generateRange(currentCell, increments[alignment], ships[currentShip])
         if(range.length < ships[currentShip]) return
         if(!player.board.placeShip(range)) return
         highlightCells(e, true)
+        if(currentShip === 'patrolBoat'){
+            startGame()
+        }
         currentShip = shipsOrder[shipsOrder.indexOf(currentShip) + 1]
         document.querySelector('.title').textContent = `Place your ${currentShip}`
-        highlightRemover = ships[currentShip] + 1 
-        if(currentShip === 'patrolBoard')
-        startGame()
+        highlightRemover = ships[currentShip] + 1        
     }
 
     const startGame = () => {
-        
+        bot.placeShips()
+        const grid = document.querySelector('.selection')
+        grid.classList.add("hidden")
+        view.renderGameBoard(player.board.getBoard(), playerGrid, true)
+        view.renderGameBoard(bot.board.getBoard(), botGrid, false, "click", fireBox)
+    }
+
+    const fireBox = (e) => {
+        const cord = e.target.dataset.cord
+        if(!bot.board.availableToAttack(cord)) return
+        bot.board.receiveAttack(cord)
+        const attackCell = bot.makeMove(player.board.getBoard(), player.board.getShips(), true)
+        player.board.receiveAttack(attackCell)
+        view.renderGameBoard(player.board.getBoard(), playerGrid, true)
+        view.renderGameBoard(bot.board.getBoard(), botGrid, false, "click", fireBox)
+        checkForGameOver()
     }
 
     const generateRange = (cord, alignment, length) => {
@@ -68,7 +97,7 @@ const gameContoller = (() => {
     const removehighlights = (e) => {
         const increments = {
             "horizontal": [1, 0],
-            "veritical": [0, 1]
+            "vertical": [0, 1]
         }
         let currentCell = e.target.dataset.cord
         let range = generateRange(currentCell, increments[alignment], highlightRemover)
@@ -81,7 +110,7 @@ const gameContoller = (() => {
     const highlightCells = (e, permanent) => {
         const increments = {
             "horizontal": [1, 0],
-            "veritical": [0, 1]
+            "vertical": [0, 1]
         }
         let currentCell = e.target.dataset.cord
         let range = generateRange(currentCell, increments[alignment], ships[currentShip])
@@ -94,11 +123,39 @@ const gameContoller = (() => {
         })
     }
 
+    const checkForGameOver = () => {
+        if(bot.board.checkForGameOver()){
+            gameOver("You")
+        } else if(player.board.checkForGameOver()){
+            gameOver("Enemy")
+        }
+    }
+
+    const gameOver = (winner) => {
+        document.querySelector(".order").textContent = `${winner} Has Won!`
+        botGrid.childNodes.forEach(node => {
+            view.removeListeners("click", node, fireBox)
+        })
+    }
+
+    const reset = () => {
+        document.querySelector('.selection').classList.remove("hidden")
+        document.querySelector('.order').textContent = "Fire Admiral!"
+        player.board.reset()
+        bot.board.reset()
+        alignment = 'horizontal'
+        currentShip = "carrier"
+        highlightRemover = 5
+        startSelections()
+    }
+
     return {
-        startSelections
+        startSelections,
+        attachResetListener
     }
 
 })()
 
 gameContoller.startSelections()
+gameContoller.attachResetListener()
 

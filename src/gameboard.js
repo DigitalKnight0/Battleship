@@ -82,7 +82,8 @@ const gameBoard = () => {
         checkForGameOver,
         reset,
         getBoard,
-        getShips
+        getShips,
+        availableToAttack
     }
 }
 

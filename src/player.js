@@ -14,12 +14,12 @@ const Player = (board) => {
     }
 }
 
-const Bot = (board) => {
-    const {playerBoard, shipsLeft} = Player(board)
+const Bot = (playerBoard) => {
+    const {board, shipsLeft} = Player(playerBoard)
     const playedCells = []
     let lockMadeAt = ''
     let adjacentCellsToPlay = []
-    const sequence = []
+    let sequence = []
 
     const generateAdjacentCells = (cord) => {
         const adjacents = []
@@ -56,7 +56,7 @@ const Bot = (board) => {
             second = sequence[sequence.length - 1]
         }
         if(first[0] === second[0]){
-            const difference = Number(second.slice(1)) - Number(firstslice(1))
+            const difference = Number(second.slice(1)) - Number(first.slice(1))
             return `${second[0]}${Number(second.slice(1)) + difference}`
         } else {
             const difference = second[0].charCodeAt(0) - first[0].charCodeAt(0)
@@ -68,11 +68,17 @@ const Bot = (board) => {
         if(sequence.length < 2){
             return adjacentCellsToPlay.pop()
         } else {
+            let cord
             if(lastHitOrMiss(opponentBoard) === 'hit'){
-                return isPlayableCell(tryAndFormSequence('up'), opponentBoard) ? tryAndFormSequence('up') : tryAndFormSequence('down')
+                cord = isPlayableCell(tryAndFormSequence('up'), opponentBoard) ? tryAndFormSequence('up') : tryAndFormSequence('down')
             } else {
-                return tryAndFormSequence('down')
+                cord = tryAndFormSequence('down')
             }
+            if(!isPlayableCell(cord, opponentBoard)){
+                sequence = [lockMadeAt]
+                return adjacentCellsToPlay.length ? adjacentCellsToPlay.pop() : getRandomMove(opponentBoard)
+            }
+            return cord
         }
     }
 
@@ -118,12 +124,10 @@ const Bot = (board) => {
     }
 
     const prevShipSunk = (opponentShips) => {
-        const lastPlay = lockMadeAt
-        const curship = opponentShips.reduce((ship, c_ship) => {
-            const shipCords = c_ship.getCords()
-            return shipCords.includes(lastPlay) ? c_ship : -1
-        }, -1)
-        return curship !== -1 ? curship.isSunk() : -1
+        const curship = opponentShips.find(ship => {
+            return ship.getCords().includes(lockMadeAt)
+        })
+        return curship ? curship.isSunk() : -1
     }
 
     const getRandomMove = (opponentBoard) => {
@@ -159,7 +163,17 @@ const Bot = (board) => {
         const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
         const alignments = [[1, 0], [0, 1]]
         ships.forEach(ship => {
-            
+            let row = sample(rows)
+            let column = sample(columns)
+            let cord = `${column}${row}`
+            let alignment = sample(alignments)
+            let ranges = generateRange(cord, alignment, ship)
+            while(ranges.length != ship || !board.placeShip(ranges)){
+                row = sample(rows)
+                column = sample(columns)
+                cord = `${column}${row}`
+                ranges = generateRange(cord, alignment, ship)
+            }
         })
     }
 
@@ -177,29 +191,9 @@ const Bot = (board) => {
     }
 
 
-    return {makeMove, playerBoard, shipsLeft, debugMakeMove}
+    return {makeMove, board, shipsLeft, debugMakeMove, placeShips}
 }
 
-/*
-const myBoard = gameBoard()
-const opponentBoardController = gameBoard()
-const opponentBoard = opponentBoardController.getBoard()
-const opponentShips = opponentBoardController.getShips()
-const bot = Bot(myBoard)
-opponentBoardController.placeShip(['A1', 'A2', 'A3'])
-opponentBoardController.receiveAttack('A1')
-bot.debugMakeMove('A1')
-const possibleMoves = ['A2', 'B1']
-let move = bot.makeMove(opponentBoard, opponentShips, true)
-console.log(move)
-opponentBoardController.receiveAttack('B1')
-console.log(opponentShips)
-move = bot.makeMove(opponentBoard, opponentShips, true)
-console.log(move)
-opponentBoardController.receiveAttack('A2')
-move = bot.makeMove(opponentBoard, opponentShips, true)
-console.log(move)
-*/
 
 
-export  {Player, Bot}
+ export  {Player, Bot}
